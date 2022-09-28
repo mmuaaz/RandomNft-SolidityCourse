@@ -1,4 +1,4 @@
-const { network } = require("hardhat")
+const { network, ethers } = require("hardhat")
 const { networkConfig, developmentChains } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
 const { storeImages, storeTokenUriMetadata } = require("../utils/uploadToPinata")
@@ -21,13 +21,14 @@ const metadataTemplate = {
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
-    const { chainId } = network.config.chainId
+    const chainId = network.config.chainId
 
     // we need to get the IPFS hashes of our images
     //we can do this by following ways;
     //1. using our own IPFS node
     // //2.  or uploading metadata and tokenURIs on Pinata or NFT.Storage
-    let tokenUris
+    let tokenUris = []
+
     if (process.env.UPLOAD_TO_PINATA == "true") {
         tokenUris = await handleTokenUris()
     }
@@ -70,23 +71,26 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     //     log("--------------------------------------------------------------------------------")
     // }
 
-    async function handleTokenUris() {
-        // We need to store
-        //1. IMAGES to IPFS
-        // for this we need "responses", "files"
-        // In "responses" pinFileToIPFS is going to return the hash of the file and we need it to add it to our metadata
-        tokenUris = []
-        const { responses: imageUploadResponses, files } = await storeImages(imagesLocation)
-        // this "response" is gonna be a list of responses from Pinata containing the hash from each of these uploaded files
-        for (imageUploadResponseIndex in imageUploadResponses) {
-            let tokenUriMetadata = { ...metadataTemplate } // "..." is a syntatic sugar used for "unpacked"
-            //actually we are saying by using "..." that means variable"tokenUriMetadata" is going to be equal to whatever returns from "metadataTemplate"
-            tokenUriMetadata.name = files[imageUploadResponseIndex].replace(".png", "") // setting the name of the NFT to be whatever is the name of the file IG?
-            tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!` // Setting description of the "x" NFT which will be populated upon mint
-            tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}` //setting image to have extension of the IPFS with IPFS hash
-            //which we get from the response("IpfsHash"), this is returned by "pinFileToIPFS"
-            console.log(`Uploading ${tokenUriMetadata.name}...`)
-        } // 2. METADATA to IPFS
+    
+}
+
+async function handleTokenUris() {
+    // We need to store
+    //1. IMAGES to IPFS
+    // for this we need "responses", "files"
+    // In "responses" pinFileToIPFS is going to return the hash of the file and we need it to add it to our metadata
+    tokenUris = []
+    const { responses: imageUploadResponses, files } = await storeImages(imagesLocation)
+    // this "response" is gonna be a list of responses from Pinata containing the hash from each of these uploaded files
+    for (imageUploadResponseIndex in imageUploadResponses) {
+        let tokenUriMetadata = { ...metadataTemplate } // "..." is a syntatic sugar used for "unpacked"
+        //actually we are saying by using "..." that means variable"tokenUriMetadata" is going to be equal to whatever returns from "metadataTemplate"
+        tokenUriMetadata.name = files[imageUploadResponseIndex].replace(".png", "") // setting the name of the NFT to be whatever is the name of the file IG?
+        tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!` // Setting description of the "x" NFT which will be populated upon mint
+        tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}` //setting image to have extension of the IPFS with IPFS hash
+        //which we get from the response("IpfsHash"), this is returned by "pinFileToIPFS"
+        console.log(`Uploading ${tokenUriMetadata.name}...`)
+        // 2. METADATA to IPFS
         //we need to create a function to "uploadToPinata" script
         const metadataUploadResponse = await storeTokenUriMetadata(tokenUriMetadata)
         tokenUris.push(`ipfs://${metadataUploadResponse.IpfsHash}`)
@@ -94,6 +98,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     console.log("Token URIs uploaded! They are:")
     console.log(tokenUris)
     return tokenUris
-}
+ }
 
 module.exports.tags = ["all", "randomIpfs", "main"]
