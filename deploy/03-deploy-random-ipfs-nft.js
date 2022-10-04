@@ -18,6 +18,14 @@ const metadataTemplate = {
     ]
 }
 
+let tokenUris = [
+    // without enteries in this array, we RUN COMM: hh deploy; got the URI address and pasted it here
+    "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
+    "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
+    "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm"
+]
+const FUND_AMOUNT = ""
+
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
@@ -27,7 +35,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     //we can do this by following ways;
     //1. using our own IPFS node
     // //2.  or uploading metadata and tokenURIs on Pinata or NFT.Storage
-    let tokenUris = []
 
     if (process.env.UPLOAD_TO_PINATA == "true") {
         tokenUris = await handleTokenUris()
@@ -41,37 +48,37 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         const tx = await vrfCoordinatorV2Mock.createSubscription()
         const txReciept = await tx.wait(1)
         subscriptionId = txReciept.events[0].args.subId
+        await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, FUND_AMOUNT)
     } else {
         vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2 /*["vrfCoordinatorV2"]*/
         subscriptionId = networkConfig[chainId].subscriptionId /*["subscriptionId"]*/
     }
     log("----------------------------------------------------")
     //await storeImages(imageLocation)
-    // const gasLane = networkConfig[chainId]["gasLane"]
-    // const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
-    // const args = [
-    //     vrfCoordinatorV2Address,
-    //     subscriptionId,
-    //     /*networkConfig[chainId].*/ gasLane,
-    //     /*networkConfig[chainId].*/ callbackGasLimit,
-    //     // tokenUris            // networkConfig[chainId].dogTokenUris,
-    //     /*networkConfig[chainId].*/ mintFee
-    // ]
+    const gasLane = networkConfig[chainId]["gasLane"]
+    const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
+    const mintFee = networkConfig[chainId]["mintFee"]
+    const args = [
+        vrfCoordinatorV2Address,
+        subscriptionId,
+        /*networkConfig[chainId].*/ gasLane,
+        /*networkConfig[chainId].*/ callbackGasLimit,
+        tokenUris, // networkConfig[chainId].dogTokenUris,
+        mintFee
+    ]
     log("--------------------------------------------------------------------------------")
-    //     const RandomIpfsNft = await deploy("RandomIpfsNft", {
-    //         from: deployer,
-    //         args: args,
-    //         log: true,
-    //         waitConfirmations: network.config.blockConfirmations || 1
-    //     })
-    //     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-    //         log("-------Verifying.... Please Wait !-------------")
-    //         await verify(raffle.address, args)
-    //     }
-    //     log("--------------------------------------------------------------------------------")
-    // }
-
-    
+    const randomIpfsNft = await deploy("RandomIpfsNft", {
+        from: deployer,
+        args: args,
+        log: true,
+        waitConfirmations: network.config.blockConfirmations || 1
+    })
+    // Verify the Deployment
+    if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+        log("-------Verifying.... Please Wait !-------------")
+        await verify(raffle.address, args)
+    }
+    log("--------------------------------------------------------------------------------")
 }
 
 async function handleTokenUris() {
@@ -98,6 +105,6 @@ async function handleTokenUris() {
     console.log("Token URIs uploaded! They are:")
     console.log(tokenUris)
     return tokenUris
- }
+}
 
 module.exports.tags = ["all", "randomIpfs", "main"]

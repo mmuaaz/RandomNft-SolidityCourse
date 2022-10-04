@@ -30,3 +30,21 @@
 /// uploading images to Pinata programmatically by using a script "Upload to Pinata"
 ;/Metadata/
 //we will populate the "metadata template" in the "deploy-random-ipfs-nft" file with what we get from storing to IPFS
+// once we write the code "uploadToPinata" we will get the image URIs through running command: hh deploy; once we get the URIs in our command Line, we will copy the URI array
+//and paste it in our code as array of tokenURI in "deploy-Random-ipfs-nft.js" then we will change the value of "uploadToPinata" in ".env" to false
+;/RandomIpfsNft/ // people can choose to host metadata on IPFs but you need to pin the data at least 1 other user needs to pin the data, you can use fil Coin to do it but if you
+//dont then chances are that your data wont get pinned
+;/Dynamic SVG NFT/ // Scalable Vector Graphics
+// we can host our metadata on chain
+// its very expensive
+// we need to convert our images to save the file size so that we make it feasable to be cheaper on chain
+;/Base64 Encoding / // The way URI is gonna work in SVG NFT is that we are going to pass the SVG code and the contract should handle the URI for us
+//we can create a function and convert the SVGs into IPFS URIs right in the contract; we are going to use "Base64 encoding" for this
+// You can actually encode any SVG to a "base64 image URL"
+// Base64 is a group of binary-to-text encoding schemes that represent binary data (more specifically, a sequence of 8-bit bytes) in sequences of 24 bits that can be represented
+//by four 6-bit Base64 digits.
+//Base64 is particularly prevalent on the World Wide Web[1] where one of its uses is the ability to embed image files or other binary assets inside textual assets such as HTML and CSS files
+// convert "svg" into base64 by using site : https://base64.guru/converter/encode/image/svg
+// copy the image URL> select Datatype: Remote URL > Encode
+// you should be able to get the base64 code of your image URL
+//data:image/svg+xml;base64,<base64>            opens your image if you paste this in your browser
