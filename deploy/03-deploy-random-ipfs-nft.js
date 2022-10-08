@@ -18,18 +18,18 @@ const metadataTemplate = {
     ]
 }
 
-let tokenUris = [
-    // without enteries in this array, we RUN COMM: hh deploy; got the URI address and pasted it here
-    "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
-    "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
-    "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm"
-]
-const FUND_AMOUNT = ""
+const FUND_AMOUNT = "1000000000000000000000"
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
+    let tokenUris = [
+        // without enteries in this array, we RUN COMM: hh deploy; got the URI address and pasted it here
+        "ipfs://QmaVkBn2tKmjbhphU7eyztbvSQU5EXDdqRyXZtRhSGgJGo",
+        "ipfs://QmYQC5aGZu2PTH8XzbJrbDnvhj3gVs7ya33H9mqUNvST3d",
+        "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm"
+    ]
 
     // we need to get the IPFS hashes of our images
     //we can do this by following ways;
@@ -43,11 +43,13 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     let vrfCoordinatorV2Address, subscriptionId
 
     if (developmentChains.includes(network.name)) {
-        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
+        const vrfCoordinatorV2Mock = await deployments.get("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
-        const tx = await vrfCoordinatorV2Mock.createSubscription()
-        const txReciept = await tx.wait(1)
-        subscriptionId = txReciept.events[0].args.subId
+        const transactionResponse = await vrfCoordinatorV2Mock.createSubscription()
+        const transactionReceipt = await transactionResponse.wait()
+        subscriptionId = transactionReceipt.events[0].args.subId
+        // Fund the subscription
+        // Our mock makes it so we don't actually have to worry about sending fund
         await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, FUND_AMOUNT)
     } else {
         vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2 /*["vrfCoordinatorV2"]*/
@@ -73,6 +75,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1
     })
+    await vrfCoordinatorV2Mock.addConsumer(subscriptionId, randomIpfsNft.address)
     // Verify the Deployment
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("-------Verifying.... Please Wait !-------------")

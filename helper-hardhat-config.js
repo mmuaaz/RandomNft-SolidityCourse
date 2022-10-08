@@ -17,8 +17,6 @@ const networkConfig = {
         gasLane: "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc", //"blablabla",
         callbackGasLimit: "500000",
         // keepersUpdateInterval: "30",
-        // gasLane: "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc",
-        // callbackGasLimit: "500000",
         // interval: "30",
         mintFee: "100000000000000000"
     }
