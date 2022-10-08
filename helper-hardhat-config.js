@@ -8,7 +8,8 @@ const networkConfig = {
         callbackGasLimit: "500000",
         // keepersUpdateInterval: "30",
         // interval: "30",
-        mintFee: "100000000000000000"
+        mintFee: "100000000000000000",
+        ethUsdPriceFeedAddress: "	0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e"
     },
     31337: {
         name: "hardhat",

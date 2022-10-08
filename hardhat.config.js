@@ -18,7 +18,14 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || ""
 //const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY
 const MAINNET_RPC_URL = process.env.MAINNET_RPC_URL || abc
 module.exports = {
-    solidity: { compilers: [{ version: "0.8.7" }, { version: "0.4.19" }, { version: "0.6.12" }] },
+    solidity: {
+        compilers: [
+            { version: "0.8.7" },
+            { version: "0.4.19" },
+            { version: "0.6.0" },
+            { version: "0.6.12" }
+        ]
+    },
     gasReporter: {
         enabled: false,
         currency: "USD",
