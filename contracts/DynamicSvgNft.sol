@@ -45,8 +45,10 @@ contract DynamicSvgNft is ERC721 {
     // We are gonna allow minters to choose the price Threshold they wish to see the dynamic NFT change
     function mintNft(int256 highValue) public {
         s_tokenIdToHighValues[s_tokenCounter] = highValue; // minters choosing the highValue(threshold) they wanna assign
-        s_tokenCounter = s_tokenCounter + 1;
         _safeMint(msg.sender, s_tokenCounter);
+        s_tokenCounter = s_tokenCounter + 1;
+        // s_tokenCounter = s_tokenCounter + 1;
+        // _safeMint(msg.sender, s_tokenCounter);
         emit CreatedNFT(s_tokenCounter, highValue);
     }
 
