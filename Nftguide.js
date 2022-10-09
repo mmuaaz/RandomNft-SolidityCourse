@@ -137,4 +137,18 @@ const { isCall } = require("hardhat/internal/hardhat-network/stack-traces/opcode
 // create a new file in deploy folder, copy and paste the initial imports from basicNFT deploy script,
 // copy ETH priceFeed address from chainlink docs, make an entry in the helper/hardhat.config for the "goerli" network
 // Copy MockV3Aggregator code from a previous project or the git repo of the course and paste it into the new file in "test" folder located in "contracts" folder
-// edit "deploy-mock" script by adding script for MockV3Aggregator deployment,
+// edit "deploy-mock" script by adding script for MockV3Aggregator deployment, // main tag was added to all the deploy scripts because when you need to deploy on a testnet, you need to deploy the SCs, but you should not mint, because you need to get the deployment
+//address first which you need to add to your subscription ID as a CONSUMER
+;/customChain/
+// customChains: {
+// network: "goerli",
+// chainId: 5,
+// urls: {
+//     apiURL: "https://api-goerli.etherscan.io/api",
+//     browserURL: "https://goerli.etherscan.io/"
+// }
+// The above things were added in order to avoid "customChain is not iterable" error
+;/deploy to testnet goerli/
+// RUN COMM: yarn hardhat deploy --network goerli --tags main
+// Once the contracts are deployed and verified on the etherscan, You need to copy the address of the "RandomIpfsNft" and add that address as a consumer in vrf.chain.link in the subscription ID you provided
+//once that is done you can run the MINT function on the SCs
